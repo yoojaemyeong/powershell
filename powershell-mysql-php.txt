@@ -1,0 +1,43 @@
+#파워쉘을 활용한 이벤트로그 정보 받기
+#권한 설정: 
+ps> Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine
+
+#로그 정보 저장
+
+$event = get-eventlog -LogName Application -newest 1
+if($event.EntryType -eq 'Error')
+{
+  $PCName = $env:COMPUTERNAME
+  $Content = $event.Message.ToString()
+  $eid = $event.EventID.ToString()
+  $postParams = @{EVENT='이벤트이름';sname=$PCName;eventid=$eid;msg=$Content}
+  Invoke-WebRequest -Uri http://postserver-address/getPOST.php -Body $postParams
+}
+else
+{
+  write-host "No error found"
+  $event
+}
+
+#POST 서버 구성, Apache + PHP + MySQL
+#MySQL Database 생성
+create database data;
+#MySQL  username / password 생성
+grant all privileges on data.* to 'user'@'localhost' identified by 'password';
+#MySQL table 생성
+create table syslog(
+  no int not null auto_increment,
+  logServerName varchar(100),
+  msg text,
+  eventId varchar(20),
+  regDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+  primary key(no)) default charset=utf8;
+
+#PHP 소스 생성
+<?php
+  $con = mysqli_connect('localhost','user','password','data') or die('MySQL conntection failed');
+  mysqli_query($con,'set names utf8');
+  $pos = $_POST['EVENT'];
+  $sname = $_POST['sname'];
+  $eventid = $_POST['
+
