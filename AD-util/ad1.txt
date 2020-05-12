@@ -1,5 +1,5 @@
 #AD 사용자 정보 보기
 get-aduser -Identity userid -properties extenstionAttribute14,extensionAttribute15
 
-#AD 사용자 속성 추가
+#AD 사용자 속성 
 set-aduser -Identity userid -replace @{extensionAttribute15="test123"}
